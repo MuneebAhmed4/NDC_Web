@@ -1,0 +1,63 @@
+
+@import "tailwindcss";
+
+:root {
+  --ink: #16241c;
+  --paper: #f6f3ea;
+  --forest: #1f4d3a;
+  --sage: #7fa98c;
+  --steam: #e8efe6;
+  --brass: #c9a45c;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-forest: var(--forest);
+  --color-sage: var(--sage);
+  --color-steam: var(--steam);
+  --color-brass: var(--brass);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+}
+
+* {
+  scrollbar-color: var(--forest) var(--paper);
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01" 1;
+}
+
+/* visible keyboard focus, never suppressed */
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+/* anchor targets clear the fixed 5rem nav (plus breathing room) */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
