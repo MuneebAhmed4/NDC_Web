@@ -2,10 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const steps = [
   {
@@ -45,27 +41,41 @@ export default function Process() {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReduced || !sectionRef.current || !lineRef.current) return;
+    const line = lineRef.current;
+    if (prefersReduced || !sectionRef.current || !line) return;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        lineRef.current,
-        { scaleY: 0 },
-        {
-          scaleY: 1,
-          ease: "none",
-          transformOrigin: "top",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 60%",
-            end: "bottom 70%",
-            scrub: 0.6,
-          },
-        }
-      );
-    }, sectionRef);
+    // GSAP is code-split out of the initial bundle and loaded lazily here; the
+    // scrubbed line fill is decorative and only needed once this section mounts.
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    (async () => {
+      const { default: gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      if (cancelled || !sectionRef.current) return;
+      gsap.registerPlugin(ScrollTrigger);
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          line,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: "none",
+            transformOrigin: "top",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 60%",
+              end: "bottom 70%",
+              scrub: 0.6,
+            },
+          }
+        );
+      }, sectionRef);
+    })();
 
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
 
   return (

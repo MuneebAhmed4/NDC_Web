@@ -1,61 +1,143 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
+// Background clip playlist. Add an entry (poster + both encodes) to extend the
+// rotation — the crossfade system picks up extra clips automatically. Keep all
+// clips at the same 1920×1080 cover dimensions.
+const clips = [
+  {
+    poster: "/videos/hero-1-poster.jpg",
+    src1080: "/videos/hero-1-1080.mp4",
+    src720: "/videos/hero-1-720.mp4",
+  },
+  {
+    poster: "/videos/hero-2-poster.jpg",
+    src1080: "/videos/hero-2-1080.mp4",
+    src720: "/videos/hero-2-720.mp4",
+  },
+];
+
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [active, setActive] = useState(0);
 
+  const advance = () => setActive((i) => (i + 1) % clips.length);
+
+  // Playback + crossfade controller. Playback is JS-driven so reduced-motion
+  // (and no-JS) visitors keep the first clip's static poster instead of a
+  // rotating video. Runs whenever the active clip changes.
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReduced || !sectionRef.current || !videoRef.current) return;
+    if (prefersReduced) return;
 
-    const ctx = gsap.context(() => {
-      // Scroll-parallax: video drifts upward slower than the page scroll
-      gsap.fromTo(
-        videoRef.current,
-        { y: "0%" },
-        {
-          y: "-25%",
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        }
-      );
-    }, sectionRef);
+    const conn = (
+      navigator as Navigator & { connection?: { saveData?: boolean } }
+    ).connection;
+    const light = window.innerWidth < 768 || conn?.saveData === true;
+    const srcFor = (i: number) => (light ? clips[i].src720 : clips[i].src1080);
 
-    return () => ctx.revert();
+    // Assign each clip's source lazily, the first time it's needed.
+    const prepare = (i: number) => {
+      const v = videoRefs.current[i];
+      if (v && !v.getAttribute("src")) {
+        v.src = srcFor(i);
+        v.load();
+      }
+    };
+
+    const current = videoRefs.current[active];
+    if (!current) return;
+    prepare(active);
+    current.currentTime = 0;
+    current.play().catch(() => {});
+
+    // Pre-buffer the next clip so its crossfade starts on a ready frame, and
+    // pause the rest so only one video decodes at a time.
+    prepare((active + 1) % clips.length);
+    videoRefs.current.forEach((el, i) => {
+      if (el && i !== active) el.pause();
+    });
+  }, [active]);
+
+  // GSAP parallax drifts the whole video stack on scroll. Code-split out of the
+  // initial bundle, decorative, and gated behind reduced-motion.
+  useEffect(() => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReduced || !sectionRef.current || !stackRef.current) return;
+
+    const stack = stackRef.current;
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    (async () => {
+      const { default: gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      if (cancelled || !sectionRef.current) return;
+      gsap.registerPlugin(ScrollTrigger);
+      ctx = gsap.context(() => {
+        gsap.fromTo(
+          stack,
+          { y: "0%" },
+          {
+            y: "-25%",
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+            },
+          }
+        );
+      }, sectionRef);
+    })();
+
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
 
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[100svh] flex items-center justify-center overflow-hidden"
+      className="relative min-h-svh flex items-center justify-center overflow-hidden bg-forest"
     >
-      {/* Full-screen parallax video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-[125%] top-[-12.5%] object-cover"
+      {/* Full-screen parallax video stack — locally hosted, compressed, and
+          poster-first. Clips crossfade and advance when each one ends; sources
+          and playback are JS-driven so reduced-motion and no-JS visitors keep
+          the first clip's static poster. */}
+      <div
+        ref={stackRef}
+        aria-hidden
+        className="absolute inset-0 w-full h-[125%] top-[-12.5%]"
       >
-        <source src="https://videos.pexels.com/video-files/8756635/8756635-uhd_4096_2160_25fps.mp4" type="video/mp4" />
-      </video>
+        {clips.map((clip, i) => (
+          <video
+            key={clip.src1080}
+            ref={(el) => {
+              videoRefs.current[i] = el;
+            }}
+            muted
+            playsInline
+            preload="none"
+            poster={clip.poster}
+            loop={clips.length === 1}
+            onEnded={clips.length > 1 ? advance : undefined}
+            style={{ opacity: i === active ? 1 : 0 }}
+            className="absolute inset-0 w-full h-full object-cover bg-forest transition-opacity duration-1000 ease-in-out"
+          />
+        ))}
+      </div>
 
       {/* Deep forest green overlay — brand colour wash over the video */}
       <div className="absolute inset-0 bg-forest/75" />
@@ -69,7 +151,7 @@ export default function Hero() {
       {/* Brass warm glow — top-left accent */}
       <div
         aria-hidden
-        className="absolute -top-16 -left-16 w-[32rem] h-[32rem] rounded-full bg-brass/15 blur-3xl pointer-events-none"
+        className="absolute -top-16 -left-16 w-128 h-128 rounded-full bg-brass/15 blur-3xl pointer-events-none"
       />
 
       {/* Hero content — centred, full width */}

@@ -201,7 +201,6 @@ export default function Branches() {
             className="rounded-2xl overflow-hidden border border-forest/15 bg-paper"
           >
             <iframe
-              key={current}
               src={embedSrc(current, active !== null)}
               title={
                 active === null

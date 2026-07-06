@@ -10,3 +10,7 @@ node_modules/
 dist/
 build/
 out/
+
+# Uncompressed 4K video masters kept at repo root for re-encoding only.
+# The shipped, compressed clips live in public/videos/ and are committed.
+/*.mp4
