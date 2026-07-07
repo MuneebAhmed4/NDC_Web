@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { MessageCircle, Phone } from "lucide-react";
+import { PHONE_DISPLAY, PHONE_HREF, WHATSAPP_HREF } from "@/lib/contact";
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
@@ -193,22 +195,34 @@ export default function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: easeOut, delay: 0.44 }}
-          className="mt-10 flex flex-wrap gap-4 justify-center"
+          className="mt-10 flex flex-wrap gap-3 justify-center"
         >
           <motion.a
-            href="#contact"
+            href={PHONE_HREF}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="rounded-full font-semibold px-8 py-3.5 shadow-lg"
+            className="inline-flex min-h-12 items-center gap-2.5 rounded-full px-7 font-semibold shadow-lg"
             style={{ background: "var(--brass)", color: "var(--ink)" }}
           >
-            Schedule a pickup
+            <Phone aria-hidden size={18} />
+            Call {PHONE_DISPLAY}
+          </motion.a>
+          <motion.a
+            href={WHATSAPP_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.03, backgroundColor: "rgba(246,243,234,1)" }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex min-h-12 items-center gap-2.5 rounded-full bg-paper/90 px-7 font-semibold text-forest backdrop-blur-sm transition-colors"
+          >
+            <MessageCircle aria-hidden size={18} />
+            WhatsApp pickup
           </motion.a>
           <motion.a
             href="#services"
             whileHover={{ scale: 1.03, backgroundColor: "rgba(127,169,140,0.15)" }}
             whileTap={{ scale: 0.97 }}
-            className="rounded-full border font-medium px-8 py-3.5 backdrop-blur-sm transition-colors"
+            className="inline-flex min-h-12 items-center rounded-full border px-7 font-medium backdrop-blur-sm transition-colors"
             style={{
               borderColor: "var(--sage)",
               color: "var(--steam)",

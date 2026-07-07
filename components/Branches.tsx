@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, ExternalLink, Phone } from "lucide-react";
+import { ExternalLink, Map, MapPin, Phone } from "lucide-react";
 
 // Branch data sourced from the official store locator (ndc.com.pk/store-locator,
 // July 2026) — have the client verify before launch. `query` drives both the
@@ -71,7 +71,9 @@ function directionsHref(query: string) {
 export default function Branches() {
   // null = overview showing all branches
   const [active, setActive] = useState<number | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const current = active === null ? overviewQuery : branches[active].query;
+  const selectedLabel = active === null ? "all branches" : branches[active].name;
 
   return (
     <section id="locations" className="py-20 md:py-28 px-6 bg-steam">
@@ -92,7 +94,8 @@ export default function Branches() {
           </h2>
           <p className="mt-4 text-ink/70 text-base leading-relaxed">
             Drop off at whichever branch is closest — or skip the trip entirely
-            with free pickup and delivery.
+            with free pickup and delivery. Tap a branch for direct calling,
+            directions, or an interactive map.
           </p>
         </motion.div>
 
@@ -198,20 +201,42 @@ export default function Branches() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, ease: easeOut, delay: 0.1 }}
-            className="rounded-2xl overflow-hidden border border-forest/15 bg-paper"
+            className="overflow-hidden rounded-2xl border border-forest/15 bg-paper"
           >
-            <iframe
-              src={embedSrc(current, active !== null)}
-              title={
-                active === null
-                  ? "Map of all National Dry Cleaners branches in Lahore"
-                  : `Map of the National Dry Cleaners ${branches[active].name} branch`
-              }
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-              className="block w-full h-96 lg:h-120 border-0"
-            />
+            {mapReady ? (
+              <iframe
+                src={embedSrc(current, active !== null)}
+                title={
+                  active === null
+                    ? "Map of all National Dry Cleaners branches in Lahore"
+                    : `Map of the National Dry Cleaners ${branches[active].name} branch`
+                }
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+                className="block h-96 w-full border-0 lg:h-120"
+              />
+            ) : (
+              <div className="flex h-96 flex-col items-center justify-center px-8 text-center lg:h-120">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-steam text-forest">
+                  <Map aria-hidden size={24} />
+                </div>
+                <h3 className="font-display text-2xl text-ink">
+                  Load map for {selectedLabel}
+                </h3>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-ink/65">
+                  The branch list is ready now. Load Google Maps only when you
+                  want the interactive view.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setMapReady(true)}
+                  className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-semibold text-paper transition-colors hover:bg-ink"
+                >
+                  Load interactive map
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

@@ -15,9 +15,38 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "National Dry Cleaners",
+  metadataBase: new URL("https://www.ndc.com.pk"),
+  title: {
+    default: "National Dry Cleaners | Dry Cleaning & Pickup in Lahore",
+    template: "%s | National Dry Cleaners",
+  },
   description:
-    "Garment care, alterations, and same-day pressing — National Dry Cleaners.",
+    "Dry cleaning, laundry, alterations, bridal care, and free pickup and delivery across Lahore.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "National Dry Cleaners",
+    description:
+      "Garment care, alterations, bridal cleaning, and pickup and delivery across Lahore.",
+    url: "/",
+    siteName: "National Dry Cleaners",
+    locale: "en_PK",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "National Dry Cleaners",
+    description:
+      "Dry cleaning, laundry, alterations, and pickup and delivery across Lahore.",
+  },
+  keywords: [
+    "dry cleaning Lahore",
+    "laundry Lahore",
+    "National Dry Cleaners",
+    "bridal dress cleaning",
+    "free pickup dry cleaning",
+  ],
 };
 
 export default function RootLayout({
@@ -27,7 +56,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-paper text-ink antialiased">
+      <body className="min-h-full flex flex-col bg-paper pb-16 text-ink antialiased md:pb-0">
         {/* data-native-anchor: skip Lenis smooth-scroll interception so the
             browser's native jump moves keyboard focus into <main> */}
         <a

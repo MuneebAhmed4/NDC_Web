@@ -1,18 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Mail, MessageCircle, Phone } from "lucide-react";
+import {
+  ADDRESS,
+  EMAIL,
+  HOURS,
+  INSTAGRAM_HREF,
+  PHONE_DISPLAY,
+  PHONE_HREF,
+  WHATSAPP_DISPLAY,
+  WHATSAPP_HREF,
+} from "@/lib/contact";
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
-
-// PLACEHOLDER CONTACT DETAILS — confirm with the client before launch.
-// Displayed number and tel: href must stay in sync (632 = "NDC" on a keypad).
-const PHONE_DISPLAY = "03-111-222-632";
-const PHONE_HREF = "tel:03111222632";
-const EMAIL = "info@ndc.com.pk";
-// Hours and main-branch address sourced from ndc.com.pk/store-locator (July
-// 2026) — branch hours range from 8am–9pm to 8am–10pm; verify with client.
-const HOURS = "Open daily · 8am–10pm (varies by branch)";
-const ADDRESS = "Main branch: 12-A Main Wahdat Road, Muslim Town, Lahore";
 
 export default function CTAFooter() {
   return (
@@ -44,7 +45,7 @@ export default function CTAFooter() {
             24 hours — same-day available.
           </p>
 
-          <div className="mb-8">
+          <div className="mb-8 flex flex-wrap justify-center gap-3">
             <motion.a
               href={PHONE_HREF}
               whileHover={{ scale: 1.04 }}
@@ -53,10 +54,20 @@ export default function CTAFooter() {
               className="inline-flex items-center justify-center gap-2.5 rounded-full px-9 py-4 font-semibold text-lg shadow-lg"
               style={{ background: "var(--brass)", color: "var(--ink)" }}
             >
-              <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-              </svg>
+              <Phone aria-hidden size={18} />
               Call {PHONE_DISPLAY}
+            </motion.a>
+            <motion.a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.2 }}
+              className="inline-flex items-center justify-center gap-2.5 rounded-full border border-paper/20 px-9 py-4 font-semibold text-lg text-paper transition-colors hover:bg-paper/10"
+            >
+              <MessageCircle aria-hidden size={18} />
+              {WHATSAPP_DISPLAY}
             </motion.a>
           </div>
 
@@ -70,7 +81,7 @@ export default function CTAFooter() {
               {EMAIL}
             </a>
             <a
-              href="https://instagram.com/ndcpakistan"
+              href={INSTAGRAM_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block py-2 text-paper/80 underline decoration-paper/40 underline-offset-4 hover:text-brass hover:decoration-brass transition-colors"
@@ -94,16 +105,24 @@ export default function CTAFooter() {
           <div className="space-y-1">
             <p>
               <a href={PHONE_HREF} className="inline-block py-1 hover:text-forest underline decoration-ink/25 underline-offset-4 transition-colors">
+                <Phone aria-hidden size={14} className="mr-1.5 inline-block align-[-2px]" />
                 {PHONE_DISPLAY}
               </a>
             </p>
             <p>
               <a href={`mailto:${EMAIL}`} className="inline-block py-1 hover:text-forest underline decoration-ink/25 underline-offset-4 transition-colors">
+                <Mail aria-hidden size={14} className="mr-1.5 inline-block align-[-2px]" />
                 {EMAIL}
               </a>
             </p>
             <p>
-              <a href="https://instagram.com/ndcpakistan" target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-forest underline decoration-ink/25 underline-offset-4 transition-colors">
+              <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-forest underline decoration-ink/25 underline-offset-4 transition-colors">
+                <MessageCircle aria-hidden size={14} className="mr-1.5 inline-block align-[-2px]" />
+                WhatsApp pickup
+              </a>
+            </p>
+            <p>
+              <a href={INSTAGRAM_HREF} target="_blank" rel="noopener noreferrer" className="inline-block py-1 hover:text-forest underline decoration-ink/25 underline-offset-4 transition-colors">
                 @ndcpakistan
               </a>
             </p>
